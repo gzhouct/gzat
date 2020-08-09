@@ -134,15 +134,19 @@ namespace gzat {
 
     ErrorCode CommandParser::Parse(const std::string& response) {
         ErrorCode err;
+        std::string response_cache = response;
         // Find command
-        std::cout << response << " " << cmd_req.cmd_id << std::endl;
-        size_t s_pos = response.find(cmd_req.cmd_id);
+        const std::string raw = cmd_req.GetRawCommand();
+        size_t r_pos = response_cache.find(raw);
+        if(r_pos != std::string::npos) {
+            response_cache = response_cache.substr(r_pos + raw.size());
+        }
+        size_t s_pos = response_cache.find(cmd_req.cmd_id);
         if(s_pos == std::string::npos) {
             err = GZAT_ERROR;
         }
         else {
-            std::cout << response << std::endl;
-            err = CastOutput(response.substr(s_pos+cmd_req.cmd_id.size()+1));
+            err = CastOutput(response_cache.substr(s_pos+cmd_req.cmd_id.size()+2));
         }
         return err;
     }
@@ -168,16 +172,26 @@ namespace gzat {
 
         if(err == GZAT_SUCCESS) {
             size_t e_pos = response_cache.find(",");
-            if(e_pos == std::string::npos) {
-                e_pos = response_cache.find("\r");
+            if(e_pos != std::string::npos) {
+                response_cache = response_cache.substr(0, e_pos);
             }
 
-            if(e_pos == std::string::npos) {
-                err = CastOutput(response_cache.substr(0));
+            e_pos = response_cache.find("\r");
+            if(e_pos != std::string::npos) {
+                response_cache = response_cache.substr(0, e_pos);
             }
-            else {
-                err = CastOutput(response_cache.substr(0, e_pos));
+
+            e_pos = response_cache.find("\n");
+            if(e_pos != std::string::npos) {
+                response_cache = response_cache.substr(0, e_pos);
             }
+
+            e_pos = response_cache.find(" ");
+            if(e_pos != std::string::npos) {
+                response_cache = response_cache.substr(0, e_pos);
+            }
+
+            err = CastOutput(response_cache);
         }
         return err;
     }

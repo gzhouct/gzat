@@ -21,7 +21,7 @@ set(headers ${headers} ${sub_headers})
 set(testers ${testers} ${sub_testers})
 
 # Set compilation flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -fPIC -Werror -fsanitize=address")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -fPIC -Werror")
 
 # Compile library
 add_library(
